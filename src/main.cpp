@@ -27,6 +27,9 @@
 #include "syzygy/tbprobe.h"
 
 using namespace Stockfish;
+namespace Stockfish::PSQT {
+  void init();
+}
 
 int main(int argc, char* argv[]) {
 
@@ -34,6 +37,7 @@ int main(int argc, char* argv[]) {
 
   UCI::init(Options);
   Tune::init();
+  PSQT::init();
   Bitboards::init();
   Position::init();
   Threads.set(size_t(Options["Threads"]));
