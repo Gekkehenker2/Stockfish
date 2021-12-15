@@ -50,7 +50,7 @@ namespace {
     assert(!pos.checkers());
 
     int vv =  pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)
-            + (pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3
+            + (pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 2
             + (pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * 4
             + (pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * 4
             + (pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * 6;
