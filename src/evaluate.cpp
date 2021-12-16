@@ -25,6 +25,16 @@
 #include "bitboard.h"
 #include "evaluate.h"
 #include "thread.h"
+#include <random>
+
+std::random_device rd;     // only used once to initialise (seed) engine
+std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+std::uniform_int_distribution<int> uni(-1, 1); // guaranteed unbiased
+
+auto random_integer = uni(rng);
+auto random_integer2 = uni(rng);
+auto random_integer3 = uni(rng);
+auto random_integer4 = uni(rng);
 
 namespace Stockfish {
 namespace {
@@ -50,13 +60,12 @@ namespace {
     assert(!pos.checkers());
 
     int vv =  pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)
-            + (pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3
-            + (pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * 4
-            + (pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * 4
-            + (pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * 7;
+            + (pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3 + random_integer
+            + (pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * 3 + random_integer2
+            + (pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * 5 + random_integer3
+            + (pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * 9 random_integer4;
 
     vv *= PawnValueEg;
-    vv += Value(2 * (pos.this_thread()->nodes & 14) - 14);
 
     return  Value(pos.side_to_move() == WHITE ? vv : -vv);
   }
