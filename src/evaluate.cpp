@@ -63,7 +63,7 @@ namespace {
             + (pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3 + random_integer
             + (pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * 3 + random_integer2
             + (pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * 5 + random_integer3
-            + (pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * 9 random_integer4;
+            + (pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * 9 + random_integer4;
 
     vv *= PawnValueEg;
 
