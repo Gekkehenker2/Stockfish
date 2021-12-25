@@ -170,8 +170,14 @@ namespace {
         if (Checks && (Pt == QUEEN || !(pos.blockers_for_king(~Us) & from)))
             b &= pos.check_squares(Pt);
 
+        Square ksq = pos.square<KING>(Us);
+
         while (b)
-            *moveList++ = make_move(from, pop_lsb(b));
+        {
+            Square to = pop_lsb(b);
+            if (!(pos.blockers_for_king(Us) & from) || aligned(from, to, ksq))
+                *moveList++ = make_move(from, to);
+        }
     }
 
     return moveList;
@@ -209,7 +215,11 @@ namespace {
             b &= ~attacks_bb<QUEEN>(pos.square<KING>(~Us));
 
         while (b)
-            *moveList++ = make_move(ksq, pop_lsb(b));
+        {
+           Square to = pop_lsb(b);
+           if ((pos.attackers_to(to) & pos.pieces(~Us)) == 0)
+               *moveList++ = make_move(ksq, to);
+        }
 
         if ((Type == QUIETS || Type == NON_EVASIONS) && pos.can_castle(Us & ANY_CASTLING))
             for (CastlingRights cr : { Us & KING_SIDE, Us & QUEEN_SIDE } )

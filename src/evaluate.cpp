@@ -74,6 +74,7 @@ namespace Eval {
   void NNUE::init() {
 
     useNNUE = Options["Use NNUE"];
+
     if (!useNNUE)
         return;
 
@@ -980,7 +981,7 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
-    Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->trend;
+    Score score = pos.psq_score() + me->imbalance();
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
@@ -1032,13 +1033,8 @@ make_v:
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
     }
 
-    // Evaluation grain
-    v = (v / 16) * 16;
-
     // Side to move point of view
-    v = (pos.side_to_move() == WHITE ? v : -v);
-
-    return v;
+    return (pos.side_to_move() == WHITE ? v : -v);
   }
 
 
@@ -1081,38 +1077,8 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  Value v;
-
-  // Deciding between classical and NNUE eval (~10 Elo): for high PSQ imbalance we use classical,
-  // but we switch to NNUE during long shuffling or with high material on the board.
-
-  bool classical = false;
-
-  if (  !useNNUE
-      || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
-  {
-      v = Evaluation<NO_TRACE>(pos).value();          // classical
-      classical = abs(v) >= 300;
-  }
-
-  // If result of a classical evaluation is much lower than threshold fall back to NNUE
-  if (!classical && useNNUE)
-  {
-       int scale = 1136
-                   + 20 * pos.non_pawn_material() / 1024;
-
-       Value nnue     = NNUE::evaluate(pos, true);     // NNUE
-       Color stm      = pos.side_to_move();
-       Value optimism = pos.this_thread()->optimism[stm];
-
-       v = (nnue + optimism) * scale / 1024 - optimism;
-
-       if (pos.is_chess960())
-           v += fix_FRC(pos);
-  }
-
-  // Damp down the evaluation linearly when shuffling
-  v = v * (207 - pos.rule50_count()) / 207;
+  Value v = useNNUE ? NNUE::evaluate(pos, true) + (pos.is_chess960() ? fix_FRC(pos) : 0)
+                    : Evaluation<NO_TRACE>(pos).value();
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
@@ -1138,10 +1104,7 @@ std::string Eval::trace(Position& pos) {
   std::memset(scores, 0, sizeof(scores));
 
   // Reset any global variable used in eval
-  pos.this_thread()->trend           = SCORE_ZERO;
   pos.this_thread()->bestValue       = VALUE_ZERO;
-  pos.this_thread()->optimism[WHITE] = VALUE_ZERO;
-  pos.this_thread()->optimism[BLACK] = VALUE_ZERO;
 
   v = Evaluation<TRACE>(pos).value();
 

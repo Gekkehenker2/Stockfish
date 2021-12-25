@@ -107,7 +107,7 @@ typedef uint64_t Key;
 typedef uint64_t Bitboard;
 
 constexpr int MAX_MOVES = 256;
-constexpr int MAX_PLY   = 246;
+constexpr int MAX_PLY   = 245;
 
 /// A move needs 16 bits to be stored
 ///
@@ -173,11 +173,6 @@ enum Bound {
   BOUND_EXACT = BOUND_UPPER | BOUND_LOWER
 };
 
-enum ExplosionState {
-  EXPLOSION_NONE,
-  MUST_CALM_DOWN
-};
-
 enum Value : int {
   VALUE_ZERO      = 0,
   VALUE_DRAW      = 0,
@@ -197,7 +192,9 @@ enum Value : int {
   RookValueMg   = 1276,  RookValueEg   = 1380,
   QueenValueMg  = 2538,  QueenValueEg  = 2682,
 
-  MidgameLimit  = 15258, EndgameLimit  = 3915
+  MidgameLimit  = 15258, EndgameLimit  = 3915,
+
+  VALUE_TB_WIN    = 101 * PawnValueEg
 };
 
 enum PieceType {

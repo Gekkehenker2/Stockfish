@@ -60,15 +60,10 @@ public:
   Pawns::Table pawnsTable;
   Material::Table materialTable;
   size_t pvIdx, pvLast;
-  RunningAverage doubleExtensionAverage[COLOR_NB];
-  uint64_t nodesLastExplosive;
-  uint64_t nodesLastNormal;
   std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
   Value bestValue;
-  int selDepth, nmpMinPly;
-  Color nmpColor;
-  ExplosionState state;
-  Value optimism[COLOR_NB];
+  int selDepth;
+  bool nmpGuard;
 
   Position rootPos;
   StateInfo rootState;
@@ -79,7 +74,6 @@ public:
   ButterflyHistory mainHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
-  Score trend;
 };
 
 
@@ -119,7 +113,7 @@ struct ThreadPool : public std::vector<Thread*> {
   void start_searching();
   void wait_for_search_finished() const;
 
-  std::atomic_bool stop, increaseDepth;
+  std::atomic_bool stop;
 
 private:
   StateListPtr setupStates;

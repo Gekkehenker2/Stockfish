@@ -1,7 +1,25 @@
 ## Overview
 
 [![Build Status](https://github.com/official-stockfish/Stockfish/actions/workflows/stockfish.yml/badge.svg)](https://github.com/official-stockfish/Stockfish/actions)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?branch=master&svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish/branch/master)
+
+Crystal is a UCI chess engine derived from [Stockfish](https://stockfishchess.org).
+
+Crystal seeks to address the following issues where chess engines often have trouble:
+
+    1) Positional or tactical blindness due to over reductions or over pruning.
+    2) Draw blindess due to the move horizon (50 move rule).
+    3) Displayed PV reliability.
+
+A few examples of what Crystal can do:
+
+    1) (Ba4+) 3B4/1r2p3/r2p1p2/bkp1P1p1/1p1P1PPp/p1P4P/PP1K4/3B4 w - -
+    2) (Draw) 4K1bn/5p2/5PpB/6P1/3k4/8/8/7q w - -
+    3) (f6)   rk6/pP1p2p1/B7/3K1P2/8/8/7b/8 w - -
+    4) (Rd3)  8/5K2/3p3p/3p3P/pp1P4/rkb1R3/p1p3P1/n1B2B2 w - -
+    5) (Nd7)  1N1K1b1r/P3pPp1/4k1P1/rp1pB1RN/q4RP1/8/p2pB1p1/1b6 w - -
+    6) (b4)   3K4/1p1B4/bB1k4/rpR1p3/2ppppp1/8/RPPPPP2/r1n5 w - -
+    7) (Draw - disable NNUE) k7/P7/8/P7/2KB4/2B1B3/1B1B1B2/B1B1B1B1 b - -
+    8) (Nc8)  8/1p1pNpbk/1q1P4/pP2p2K/P3N3/4P1P1/3P4/8 w - -
 
 [Stockfish](https://stockfishchess.org) is a free, powerful UCI chess engine
 derived from Glaurung 2.1. Stockfish is not a complete chess program and requires a
@@ -32,6 +50,7 @@ This distribution of Stockfish consists of the following files:
 
   * a file with the .nnue extension, storing the neural network for the NNUE
     evaluation. Binary distributions will have this file embedded.
+
 
 ## The UCI protocol and available options
 
@@ -83,18 +102,6 @@ change them via a chess GUI. This is a list of available UCI options in Stockfis
     These WDL numbers model expected game outcomes for a given evaluation and
     game ply for engine self-play at fishtest LTC conditions (60+0.6s per game).
 
-  * #### UCI_LimitStrength
-    Enable weaker play aiming for an Elo rating as set by UCI_Elo. This option overrides Skill Level.
-
-  * #### UCI_Elo
-    If enabled by UCI_LimitStrength, aim for an engine strength of the given Elo.
-    This Elo rating has been calibrated at a time control of 60s+0.6s and anchored to CCRL 40/4.
-
-  * #### Skill Level
-    Lower the Skill Level in order to make Stockfish play weaker (see also UCI_LimitStrength).
-    Internally, MultiPV is enabled, and with a certain probability depending on the Skill Level a
-    weaker move will be played.
-
   * #### SyzygyPath
     Path to the folders/directories storing the Syzygy tablebase files. Multiple
     directories are to be separated by ";" on Windows and by ":" on Unix-based
@@ -123,10 +130,6 @@ change them via a chess GUI. This is a list of available UCI options in Stockfis
   * #### Move Overhead
     Assume a time delay of x ms due to network and GUI overheads. This is useful to
     avoid losses on time in those cases.
-
-  * #### Slow Mover
-    Lower values will make Stockfish take less time in games, higher values will
-    make it think longer.
 
   * #### nodestime
     Tells the engine to use nodes searched instead of wall time to account for
@@ -206,7 +209,8 @@ replacing `[filename]` as needed.
 
 If the engine is searching a position that is not in the tablebases (e.g.
 a position with 8 pieces), it will access the tablebases during the search.
-If the engine reports a very large score (typically 153.xx), this means
+
+If the engine reports a very large score (95.xx to 99.xx), this means
 it has found a winning line into a tablebase position.
 
 If the engine is given a position to search that is in the tablebases, it

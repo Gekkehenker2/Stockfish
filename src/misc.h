@@ -53,7 +53,7 @@ inline TimePoint now() {
 
 template<class Entry, int Size>
 struct HashTable {
-  Entry* operator[](Key key) { return &table[(uint32_t)key & (Size - 1)]; }
+  Entry* operator[](Key key) { return &table[key & (Size - 1)]; }
 
 private:
   std::vector<Entry> table = std::vector<Entry>(Size); // Allocate on the heap
@@ -84,33 +84,6 @@ T* align_ptr_up(T* ptr)
 static inline const union { uint32_t i; char c[4]; } Le = { 0x01020304 };
 static inline const bool IsLittleEndian = (Le.c[0] == 4);
 
-
-// RunningAverage : a class to calculate a running average of a series of values.
-// For efficiency, all computations are done with integers.
-class RunningAverage {
-  public:
-
-      // Constructor
-      RunningAverage() {}
-
-      // Reset the running average to rational value p / q
-      void set(int64_t p, int64_t q)
-        { average = p * PERIOD * RESOLUTION / q; }
-
-      // Update average with value v
-      void update(int64_t v)
-        { average = RESOLUTION * v + (PERIOD - 1) * average / PERIOD; }
-
-      // Test if average is strictly greater than rational a / b
-      bool is_greater(int64_t a, int64_t b)
-        { return b * average > a * PERIOD * RESOLUTION ; }
-
-  private :
-      static constexpr int64_t PERIOD     = 4096;
-      static constexpr int64_t RESOLUTION = 1024;
-      int64_t average;
-};
-
 template <typename T, std::size_t MaxSize>
 class ValueList {
 
@@ -137,33 +110,6 @@ private:
   T values_[MaxSize];
   std::size_t size_ = 0;
 };
-
-
-/// sigmoid(t, x0, y0, C, P, Q) implements a sigmoid-like function using only integers,
-/// with the following properties:
-///
-///  -  sigmoid is centered in (x0, y0)
-///  -  sigmoid has amplitude [-P/Q , P/Q] instead of [-1 , +1]
-///  -  limit is (y0 - P/Q) when t tends to -infinity
-///  -  limit is (y0 + P/Q) when t tends to +infinity
-///  -  the slope can be adjusted using C > 0, smaller C giving a steeper sigmoid
-///  -  the slope of the sigmoid when t = x0 is P/(Q*C)
-///  -  sigmoid is increasing with t when P > 0 and Q > 0
-///  -  to get a decreasing sigmoid, call with -t, or change sign of P
-///  -  mean value of the sigmoid is y0
-///
-/// Use <https://www.desmos.com/calculator/jhh83sqq92> to draw the sigmoid
-
-inline int64_t sigmoid(int64_t t, int64_t x0,
-                                  int64_t y0,
-                                  int64_t  C,
-                                  int64_t  P,
-                                  int64_t  Q)
-{
-   assert(C > 0);
-   return y0 + P * (t-x0) / (Q * (std::abs(t-x0) + C)) ;
-}
-
 
 /// xorshift64star Pseudo-Random Number Generator
 /// This class is based on original code written and dedicated
@@ -201,19 +147,6 @@ public:
   { return T(rand64() & rand64() & rand64()); }
 };
 
-inline uint64_t mul_hi64(uint64_t a, uint64_t b) {
-#if defined(__GNUC__) && defined(IS_64BIT)
-    __extension__ typedef unsigned __int128 uint128;
-    return ((uint128)a * (uint128)b) >> 64;
-#else
-    uint64_t aL = (uint32_t)a, aH = a >> 32;
-    uint64_t bL = (uint32_t)b, bH = b >> 32;
-    uint64_t c1 = (aL * bL) >> 32;
-    uint64_t c2 = aH * bL + c1;
-    uint64_t c3 = aL * bH + (uint32_t)c2;
-    return aH * bH + (c2 >> 32) + (c3 >> 32);
-#endif
-}
 
 /// Under Windows it is not possible for a process to run on more than one
 /// logical processor group. This usually means to be limited to use max 64
