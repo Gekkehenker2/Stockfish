@@ -336,10 +336,17 @@ namespace Stockfish::Eval::NNUE {
       {
           const IndexType offset = HalfDimensions * p;
           const auto out = reinterpret_cast<int8x8_t*>(&output[offset]);
-          for (IndexType j = 0; j < NumChunks; ++j)
+
+          constexpr IndexType UnrollFactor = 16;
+          static_assert(UnrollFactor % UnrollFactor == 0);
+          for (IndexType j = 0; j < NumChunks; j += UnrollFactor)
           {
-              int16x8_t sum = reinterpret_cast<const int16x8_t*>(accumulation[perspectives[p]])[j];
-              out[j] = vmax_s8(vqmovn_s16(sum), Zero);
+              int16x8_t sums[UnrollFactor];
+              for (IndexType i = 0; i < UnrollFactor; ++i)
+                sums[i] = reinterpret_cast<const int16x8_t*>(accumulation[perspectives[p]])[j+i];
+
+              for (IndexType i = 0; i < UnrollFactor; ++i)
+                out[j+i] = vmax_s8(vqmovn_s16(sums[i]), Zero);
           }
       }
       return psqt;
@@ -370,7 +377,6 @@ namespace Stockfish::Eval::NNUE {
       // That might depend on the feature set and generally relies on the
       // feature set's update cost calculation to be correct and never
       // allow updates with more added/removed features than MaxActiveDimensions.
-      using IndexList = ValueList<IndexType, FeatureSet::MaxActiveDimensions>;
 
   #ifdef VECTOR
       // Gcc-10.2 unnecessarily spills AVX2 registers if this array
@@ -404,12 +410,12 @@ namespace Stockfish::Eval::NNUE {
 
         // Gather all features to be updated.
         const Square ksq = pos.square<KING>(perspective);
-        IndexList removed[2], added[2];
+        FeatureSet::IndexList removed[2], added[2];
         FeatureSet::append_changed_indices(
-          ksq, next, perspective, removed[0], added[0]);
+          ksq, next->dirtyPiece, perspective, removed[0], added[0]);
         for (StateInfo *st2 = pos.state(); st2 != next; st2 = st2->previous)
           FeatureSet::append_changed_indices(
-            ksq, st2, perspective, removed[1], added[1]);
+            ksq, st2->dirtyPiece, perspective, removed[1], added[1]);
 
         // Mark the accumulators as computed.
         next->accumulator.computed[perspective] = true;
@@ -534,7 +540,7 @@ namespace Stockfish::Eval::NNUE {
         // Refresh the accumulator
         auto& accumulator = pos.state()->accumulator;
         accumulator.computed[perspective] = true;
-        IndexList active;
+        FeatureSet::IndexList active;
         FeatureSet::append_active_indices(pos, perspective, active);
 
   #ifdef VECTOR

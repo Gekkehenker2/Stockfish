@@ -60,18 +60,23 @@ public:
   Pawns::Table pawnsTable;
   Material::Table materialTable;
   size_t pvIdx, pvLast;
-  uint64_t ttHitAverage;
+  RunningAverage doubleExtensionAverage[COLOR_NB];
+  uint64_t nodesLastExplosive;
+  uint64_t nodesLastNormal;
+  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
+  Value bestValue;
   int selDepth, nmpMinPly;
   Color nmpColor;
-  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
+  ExplosionState state;
+  Value optimism[COLOR_NB];
 
   Position rootPos;
   StateInfo rootState;
   Search::RootMoves rootMoves;
   Depth rootDepth, completedDepth;
+  Value rootDelta;
   CounterMoveHistory counterMoves;
   ButterflyHistory mainHistory;
-  LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
   Score trend;
@@ -89,6 +94,7 @@ struct MainThread : public Thread {
 
   double previousTimeReduction;
   Value bestPreviousScore;
+  Value bestPreviousAverageScore;
   Value iterValue[4];
   int callsCnt;
   bool stopOnPonderhit;
