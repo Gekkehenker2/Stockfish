@@ -49,7 +49,7 @@ namespace {
   Value Evaluation::value() {
     assert(!pos.checkers());
 
-    int vv =  pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)
+    int vv =  (pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) * 2
             + (pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3
             + (pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * 3
             + (pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * 5
