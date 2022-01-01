@@ -89,12 +89,12 @@ constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
 constexpr Score PBonus[RANK_NB][FILE_NB] =
   { // Pawn (asymmetric distribution)
    { },
-   { S(  3,-10), S(  3, -6), S( 10, 10), S( 19,  0), S( 16, 14), S( 19,  7), S(  7, -5), S( -5,-19) },
-   { S( -9,-10), S(-15,-10), S( 11,-10), S( 15,  4), S( 32,  4), S( 22,  3), S(  5, -6), S(-22, -4) },
-   { S( -4,  6), S(-23, -2), S(  6, -8), S( 20, -4), S( 40,-13), S( 17,-12), S(  4,-10), S( -8, -9) },
-   { S( 13, 10), S(  0,  5), S(-13,  4), S(  1, -5), S( 11, -5), S( -2, -5), S(-13, 14), S(  5,  9) },
-   { S(  5, 28), S(-12, 20), S( -7, 21), S( 22, 28), S( -8, 30), S( -5,  7), S(-15,  6), S( -8, 13) },
-   { S( -7,  0), S(  7,-11), S( -3, 12), S(-13, 21), S(  5, 25), S(-16, 19), S( 10,  4), S( -8,  7) }
+   { S(  3, 70), S(  3, 70), S( 10, 70), S( 19, 70), S( 16, 70), S( 19, 70), S(  7, 70), S( -5, 70) },
+   { S( -9, 60), S(-15, 60), S( 11, 60), S( 15, 60), S( 32, 60), S( 22, 60), S(  5, 60), S(-22, 60) },
+   { S( -4, 50), S(-23, 50), S(  6, 50), S( 20, 50), S( 40, 50), S( 17, 50), S(  4, 50), S( -8, 50) },
+   { S( 13, 40), S(  0, 40), S(-13, 40), S(  1, 40), S( 11, 40), S( -2, 40), S(-13, 40), S(  5, 40) },
+   { S(  5, 30), S(-12, 30), S( -7, 30), S( 22, 30), S( -8, 30), S( -5, 30), S(-15, 30), S( -8, 30) },
+   { S( -7, 20), S(  7, 20), S( -3, 20), S(-13, 20), S(  5, 20), S(-16, 20), S( 10, 20), S( -8, 20) }
   };
 
 #undef S
@@ -107,7 +107,7 @@ Score psq[PIECE_NB][SQUARE_NB];
 // the tables are initialized by flipping and changing the sign of the white scores.
 void init() {
 
-  for (Piece pc : {W_PAWN, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING})
+  for (Piece pc : {W_PAWN})
   {
       Score score = make_score(PieceValue[MG][pc], PieceValue[EG][pc]);
 
